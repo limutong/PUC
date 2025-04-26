@@ -57,9 +57,9 @@ def parse_articles(text):
 
 def append_to_csv(articles):
     with open('articles.csv', 'a', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
+        writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
         for title, content, image in articles:
-            writer.writerow([title, content, image])
+            writer.writerow([str(title), str(content), str(image)])
 
 if __name__ == "__main__":
     try:
