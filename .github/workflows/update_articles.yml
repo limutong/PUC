@@ -31,4 +31,6 @@ jobs:
           git config --global user.name "limutong"
           git config --global user.email "mutongli@gmail.com"
           git add articles.csv
-          git diff --cached --quiet || (git commit -m "Auto-update articles.csv" && git push) || true
+          git commit -m "Auto-update articles.csv" || echo "No changes to commit"
+          git pull --rebase
+          git push
