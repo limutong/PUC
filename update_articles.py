@@ -33,19 +33,23 @@ def parse_articles(text):
     print("====== END OF RAW GPT RESPONSE ======")
     articles = []
     today = datetime.today().strftime('%Y-%b-%d')
-    blocks = text.strip().split('\n\n')
-    for block in blocks:
-        lines = block.strip().split('\n')
-        if len(lines) >= 2:
-            title_line = lines[0].replace('**Title**:', '').replace('Title:', '').strip()
-            summary_line = lines[1].replace('**Summary**:', '').replace('Summary:', '').strip()
 
-            title = f"{today} {title_line}"
-            content = summary_line
-            image = ""  # 没有图片，留空
+    # 直接按每一行来处理
+    lines = [line.strip() for line in text.strip().split('\n') if line.strip()]
 
-            articles.append((title, content, image))
+    # 每两行配成一篇文章
+    for i in range(0, len(lines) - 1, 2):
+        title_line = lines[i].replace('**Title**:', '').replace('Title:', '').strip()
+        summary_line = lines[i+1].replace('**Summary**:', '').replace('Summary:', '').strip()
+
+        title = f"{today} {title_line}"
+        content = summary_line
+        image = ""  # 没有图片
+
+        articles.append((title, content, image))
+
     return articles
+
 
 
 def append_to_csv(articles):
