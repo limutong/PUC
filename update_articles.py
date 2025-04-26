@@ -1,5 +1,3 @@
-# File: update_articles.py
-
 import openai
 import csv
 import os
@@ -10,12 +8,12 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 
 def fetch_news_articles():
     prompt = (
-        "Search for 1 to 3 of the latest English news articles related to 'pyramid underground city', \
-        'ancient civilization', or 'planetary generator'. For each article, return:\n"
-        "- Title\n"
-        "- Link\n"
-        "- One-sentence summary\n"
-        "- Image URL (if available, otherwise leave blank)\n"
+        "Search for 1 to 3 of the latest English news articles related to 'pyramid underground city', "
+        "'ancient civilization', or 'planetary generator'. For each article, return:\\n"
+        "- Title\\n"
+        "- Summary\\n"
+        "- Link\\n"
+        "- Image URL (if available, otherwise leave blank)\\n"
         "Format it clearly and separately."
     )
     
@@ -27,9 +25,9 @@ def fetch_news_articles():
 
 def parse_articles(text):
     articles = []
-    blocks = text.strip().split('\n\n')
+    blocks = text.strip().split('\\n\\n')
     for block in blocks:
-        lines = block.strip().split('\n')
+        lines = block.strip().split('\\n')
         if len(lines) >= 3:
             title = lines[0].replace('Title: ', '').strip()
             summary = lines[1].replace('Summary: ', '').strip()
@@ -51,8 +49,8 @@ if __name__ == "__main__":
         articles = parse_articles(raw_text)
         if articles:
             append_to_csv(articles)
-            print(f"Added {len(articles)} new articles.")
+            print(f"✅ Update Success: Added {len(articles)} new articles.")
         else:
-            print("No valid articles found.")
+            print("⚠️ No valid articles found. Nothing updated.")
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"❌ Error during update: {str(e)}")
