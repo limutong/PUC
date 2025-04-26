@@ -11,13 +11,14 @@ def fetch_news_articles():
     today = datetime.today().strftime('%Y-%b-%d')  # 比如 2025-Apr-26
 
     prompt = (
-        f"Today is {today}. Please find 1 to 3 latest English news articles related to 'pyramid underground city', "
-        f"'ancient civilization', or 'planetary generator'. For each article, return:\n"
-        "- Title: (only clean title text)\n"
-        "- Summary: (brief 1-2 sentences summary)\n"
-        "- Link: (full direct article link, not homepage)\n"
-        "- Image URL: (direct image URL from the article, if no image, leave empty)\n"
-        "No markdown formatting. Only plain text output."
+        f"Today is {today}. Please search 3 latest English news articles related to 'pyramid underground city', "
+        f"'ancient civilization', or 'planetary generator'. For each article, return exactly:\n"
+        "- Title: (pure text title only)\n"
+        "- Summary: (short paragraph summary only)\n"
+        "- Link: (full clickable URL to article detail page)\n"
+        "- Image URL: (full image URL, leave blank if none)\n\n"
+        "Do not use any markdown. Do not combine fields together. Each field must be on its own line exactly as shown above. "
+        "Separate different articles with an empty line."
     )
 
     response = client.chat.completions.create(
@@ -27,6 +28,9 @@ def fetch_news_articles():
     return response.choices[0].message.content
 
 def parse_articles(text):
+    print("====== RAW GPT RESPONSE ======")
+    print(text)
+    print("====== END OF RAW GPT RESPONSE ======")
     articles = []
     today = datetime.today().strftime('%Y-%b-%d')
     blocks = text.strip().split('\n\n')
