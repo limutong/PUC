@@ -8,17 +8,16 @@ from datetime import datetime
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 def fetch_news_articles():
-    today = datetime.today().strftime('%Y-%b-%d')  # 比如 2025-Apr-26
+    today = datetime.today().strftime('%Y-%b-%d')  # 例如 2025-Apr-26
 
     prompt = (
-        f"Today is {today}. Please search 3 latest English news articles related to 'pyramid underground city', "
-        f"'ancient civilization', or 'planetary generator'. For each article, return exactly:\n"
+        f"Today is {today}. Based on the following background, imagine and create 3 realistic English news articles:\n\n"
+        "**Background:** In 2025, scientists have discovered a massive underground structure beneath the pyramids — long, cylindrical architectural elements that suggest a possible function as ancient energy generators, potentially harnessing Earth's magnetic field.\n\n"
+        "Articles should sound credible, inspired by real-world reporting styles (e.g., National Geographic, BBC News, Archaeology Today).\n\n"
+        "For each article, return exactly:\n"
         "- Title: (pure text title only)\n"
-        "- Summary: (short paragraph summary only)\n"
-        "- Link: (full clickable URL to article detail page)\n"
-        "- Image URL: (full image URL, leave blank if none)\n\n"
-        "Do not use any markdown. Do not combine fields together. Each field must be on its own line exactly as shown above. "
-        "Separate different articles with an empty line."
+        "- Summary: (short paragraph summary only)\n\n"
+        "No markdown. No links. No images. Separate different articles with an empty line."
     )
 
     response = client.chat.completions.create(
@@ -26,6 +25,7 @@ def fetch_news_articles():
         messages=[{"role": "system", "content": prompt}]
     )
     return response.choices[0].message.content
+
 
 def parse_articles(text):
     print("====== RAW GPT RESPONSE ======")
