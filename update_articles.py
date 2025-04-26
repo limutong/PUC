@@ -8,16 +8,18 @@ from datetime import datetime
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 def fetch_news_articles():
+    today = datetime.today().strftime('%Y-%b-%d')  # 比如 2025-Apr-26
+
     prompt = (
-        "Search for 1 to 3 of the latest English news articles related to 'pyramid underground city', "
-        "'ancient civilization', or 'planetary generator'. For each article, return:\n"
-        "- Title\n"
-        "- Summary\n"
-        "- Link\n"
-        "- Image URL (if available, otherwise leave blank)\n"
-        "Format it clearly and separately."
+        f"Today is {today}. Please find 1 to 3 latest English news articles related to 'pyramid underground city', "
+        f"'ancient civilization', or 'planetary generator'. For each article, return:\n"
+        "- Title: (only clean title text)\n"
+        "- Summary: (brief 1-2 sentences summary)\n"
+        "- Link: (full direct article link, not homepage)\n"
+        "- Image URL: (direct image URL from the article, if no image, leave empty)\n"
+        "No markdown formatting. Only plain text output."
     )
-    
+
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "system", "content": prompt}]
@@ -26,6 +28,7 @@ def fetch_news_articles():
 
 def parse_articles(text):
     articles = []
+    today = datetime.today().strftime('%Y-%b-%d')
     blocks = text.strip().split('\n\n')
     for block in blocks:
         lines = block.strip().split('\n')
@@ -37,23 +40,30 @@ def parse_articles(text):
             if len(lines) > 3:
                 image_line = lines[3].replace('**Image URL**:', '').replace('Image URL:', '').strip()
 
-            # 处理link，提取出真正的URL
+            # 提取链接
             match = re.search(r'\((https?://[^\)]+)\)', link_line)
             if match:
                 link = match.group(1)
             else:
-                link = link_line  # fallback
+                link = link_line
 
-            # 处理image，提取URL
+            # 提取图片链接
             match_img = re.search(r'\((https?://[^\)]+)\)', image_line)
             if match_img:
                 image = match_img.group(1)
             else:
-                image = image_line  # fallback
+                image = image_line
 
-            content = f"{summary_line} [Read more]({link})"
-            articles.append((title_line, content, image))
+            title = f"{today} {title_line}"
+            # ✅ 正确处理：Summary正文 + [Read more](链接)
+            if link:
+                content = f"{summary_line} [Read more]({link})"
+            else:
+                content = summary_line
+
+            articles.append((title, content, image))
     return articles
+
 
 def append_to_csv(articles):
     with open('articles.csv', 'a', newline='', encoding='utf-8') as csvfile:
