@@ -1,33 +1,33 @@
-import openai
+from openai import OpenAI
 import csv
 import os
 import random
 from datetime import datetime
 
-openai.api_key = os.getenv('OPENAI_API_KEY')
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 def fetch_news_articles():
     prompt = (
         "Search for 1 to 3 of the latest English news articles related to 'pyramid underground city', "
-        "'ancient civilization', or 'planetary generator'. For each article, return:\\n"
-        "- Title\\n"
-        "- Summary\\n"
-        "- Link\\n"
-        "- Image URL (if available, otherwise leave blank)\\n"
+        "'ancient civilization', or 'planetary generator'. For each article, return:\n"
+        "- Title\n"
+        "- Summary\n"
+        "- Link\n"
+        "- Image URL (if available, otherwise leave blank)\n"
         "Format it clearly and separately."
     )
     
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "system", "content": prompt}]
     )
-    return response['choices'][0]['message']['content']
+    return response.choices[0].message.content
 
 def parse_articles(text):
     articles = []
-    blocks = text.strip().split('\\n\\n')
+    blocks = text.strip().split('\n\n')
     for block in blocks:
-        lines = block.strip().split('\\n')
+        lines = block.strip().split('\n')
         if len(lines) >= 3:
             title = lines[0].replace('Title: ', '').strip()
             summary = lines[1].replace('Summary: ', '').strip()
@@ -51,6 +51,6 @@ if __name__ == "__main__":
             append_to_csv(articles)
             print(f"✅ Update Success: Added {len(articles)} new articles.")
         else:
-            print("⚠️ No valid articles found. Nothing updated.")
+            print("⚠️ No valid articles found. GPT returned empty or invalid data.")
     except Exception as e:
         print(f"❌ Error during update: {str(e)}")
