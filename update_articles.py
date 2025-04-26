@@ -2,6 +2,7 @@ from openai import OpenAI
 import csv
 import os
 import random
+import re
 from datetime import datetime
 
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
@@ -29,12 +30,29 @@ def parse_articles(text):
     for block in blocks:
         lines = block.strip().split('\n')
         if len(lines) >= 3:
-            title = lines[0].replace('Title: ', '').strip()
-            summary = lines[1].replace('Summary: ', '').strip()
-            link = lines[2].replace('Link: ', '').strip()
-            image = lines[3].replace('Image: ', '').strip() if len(lines) > 3 else ''
-            content = f"{summary} [Read more]({link})"
-            articles.append((title, content, image))
+            title_line = lines[0].replace('**Title**:', '').replace('Title:', '').strip()
+            summary_line = lines[1].replace('**Summary**:', '').replace('Summary:', '').strip()
+            link_line = lines[2].replace('**Link**:', '').replace('Link:', '').strip()
+            image_line = ''
+            if len(lines) > 3:
+                image_line = lines[3].replace('**Image URL**:', '').replace('Image URL:', '').strip()
+
+            # 处理link，提取出真正的URL
+            match = re.search(r'\((https?://[^\)]+)\)', link_line)
+            if match:
+                link = match.group(1)
+            else:
+                link = link_line  # fallback
+
+            # 处理image，提取URL
+            match_img = re.search(r'\((https?://[^\)]+)\)', image_line)
+            if match_img:
+                image = match_img.group(1)
+            else:
+                image = image_line  # fallback
+
+            content = f"{summary_line} [Read more]({link})"
+            articles.append((title_line, content, image))
     return articles
 
 def append_to_csv(articles):
