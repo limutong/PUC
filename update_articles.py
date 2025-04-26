@@ -36,34 +36,13 @@ def parse_articles(text):
     blocks = text.strip().split('\n\n')
     for block in blocks:
         lines = block.strip().split('\n')
-        if len(lines) >= 3:
+        if len(lines) >= 2:
             title_line = lines[0].replace('**Title**:', '').replace('Title:', '').strip()
             summary_line = lines[1].replace('**Summary**:', '').replace('Summary:', '').strip()
-            link_line = lines[2].replace('**Link**:', '').replace('Link:', '').strip()
-            image_line = ''
-            if len(lines) > 3:
-                image_line = lines[3].replace('**Image URL**:', '').replace('Image URL:', '').strip()
-
-            # 提取链接
-            match = re.search(r'\((https?://[^\)]+)\)', link_line)
-            if match:
-                link = match.group(1)
-            else:
-                link = link_line
-
-            # 提取图片链接
-            match_img = re.search(r'\((https?://[^\)]+)\)', image_line)
-            if match_img:
-                image = match_img.group(1)
-            else:
-                image = image_line
 
             title = f"{today} {title_line}"
-            # ✅ 正确处理：Summary正文 + [Read more](链接)
-            if link:
-                content = f"{summary_line} [Read more]({link})"
-            else:
-                content = summary_line
+            content = summary_line
+            image = ""  # 没有图片，留空
 
             articles.append((title, content, image))
     return articles
