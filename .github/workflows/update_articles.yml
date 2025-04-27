@@ -2,7 +2,7 @@ name: Update Articles Daily
 
 on:
   schedule:
-    - cron: '0 2 * * *' # 每天新加坡时间10AM触发（UTC+8）
+    - cron: '0 0 * * *' # 每天新加坡时间8AM触发（UTC+8）
   workflow_dispatch: # 允许手动触发
 
 jobs:
